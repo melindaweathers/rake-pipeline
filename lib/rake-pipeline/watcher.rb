@@ -46,8 +46,12 @@ module Rake
       def generate_build_proc(project)
         Proc.new do
           puts "#{Time.now}: building project..."
-          project.invoke_clean
-          puts "done"
+          begin
+            project.invoke_clean
+            puts "done"
+          rescue Exception => e
+            puts "RAKEP ERROR: #{e.message}"
+          end
         end
       end
 
