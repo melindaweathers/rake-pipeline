@@ -46,7 +46,7 @@ module Rake
       def generate_build_proc(project)
         Proc.new do
           puts "#{Time.now}: building project..."
-          project.invoke
+          project.invoke_clean
           puts "done"
         end
       end

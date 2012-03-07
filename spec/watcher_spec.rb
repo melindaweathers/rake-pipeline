@@ -16,7 +16,7 @@ describe "Rake::Pipeline::Watcher" do
     File.open(assetfile_path, "w") { |file| file.write(assetfile_source) }
 
     @project = Rake::Pipeline::Project.new(assetfile_path)
-    @project.stub(:invoke)
+    @project.stub(:invoke_clean)
 
     @watcher = Rake::Pipeline::Watcher.new(@project)
     @watcher.stub(:puts)
@@ -28,7 +28,7 @@ describe "Rake::Pipeline::Watcher" do
   end
 
   it "builds on initialization" do
-    project.should_receive :invoke
+    project.should_receive :invoke_clean
     watcher.start
   end
 
