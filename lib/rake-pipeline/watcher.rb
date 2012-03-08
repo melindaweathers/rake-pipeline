@@ -13,17 +13,21 @@ module Rake
         build_proc = generate_build_proc(project)
         monitor = FSSM::Monitor.new
 
+        # Watch for file changes in the inputs or the Assetfile.
+        # If files are added or deleted, or the Assetfile changes,
+        #    do a full invoke_clean;
+        #    otherwise, just do a regular invoke.
         watched_inputs(project).each do |root, input_glob|
           monitor.path root do
             glob input_glob
-            update &build_proc
-            create &build_proc
-            delete &build_proc
+            update {|base, relative| build_proc.call(relative == 'Assetfile')}
+            create {|base, relative| build_proc.call(true)}
+            delete {|base, relative| build_proc.call(true)}
           end
         end
 
         # Build it once when we start up, and then start watching for changes.
-        build_proc.call
+        build_proc.call(false)
         monitor.run
       end
 
@@ -44,10 +48,11 @@ module Rake
       private
 
       def generate_build_proc(project)
-        Proc.new do
-          puts "#{Time.now}: building project..."
+        Proc.new do |clean|
+          puts "#{Time.now}:#{" reloading &" if clean} building project..."
           begin
-            project.invoke_clean
+            method = clean ? :invoke_clean : :invoke
+            project.send method
             puts "done"
           rescue Exception => e
             puts "RAKEP ERROR: #{e.message}"
