@@ -35,7 +35,11 @@ module Rake
       desc "server", "Run the Rake::Pipeline preview server."
       def server
         require "rake-pipeline/server"
+        require "rake-pipeline/watcher"
+        watcher = Rake::Pipeline::Watcher.new(project)
+        watcher.start(false)
         Rake::Pipeline::Server.new.start
+        watcher.stop
       end
 
       desc "watch", "Build the project when inputs change."
