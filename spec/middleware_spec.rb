@@ -56,6 +56,9 @@ describe "Rake::Pipeline Middleware" do
 
   app = middleware = nil
 
+  let(:assetfile_path) { File.join(tmp, "Assetfile") }
+  let(:project) { Rake::Pipeline::Project.new(assetfile_path) }
+
   before do
     assetfile_path = File.join(tmp, "Assetfile")
     File.open(assetfile_path, "w") { |file| file.write(assetfile_source) }
@@ -74,6 +77,7 @@ describe "Rake::Pipeline Middleware" do
       end
     end
 
+    project.invoke_clean
     get "/javascripts/application.js"
   end
 
@@ -83,48 +87,6 @@ describe "Rake::Pipeline Middleware" do
     last_response.should be_ok
 
     last_response.body.should == expected_output
-    last_response.headers["Content-Type"].should == "application/javascript"
-  end
-
-  it "updates the output when files change" do
-    age_existing_files
-
-    File.open(File.join(tmp, "app/javascripts/jquery.js"), "w") do |file|
-      file.write "var jQuery = {};\njQuery.trim = function() {};\n"
-    end
-
-    expected = <<-HERE.gsub(/^ {6}/, '')
-      var jQuery = {};
-      jQuery.trim = function() {};
-      var SC = {};
-
-      SC.hi = function() { console.log("hi"); };
-    HERE
-
-    get "/javascripts/application.js"
-
-    last_response.body.should == expected
-    last_response.headers["Content-Type"].should == "application/javascript"
-  end
-
-  it "updates the output when new files are added" do
-    age_existing_files
-
-    File.open(File.join(tmp, "app/javascripts/history.js"), "w") do |file|
-      file.write "var History = {};\n"
-    end
-
-    expected = <<-HERE.gsub(/^ {6}/, '')
-      var History = {};
-      var jQuery = {};
-      var SC = {};
-
-      SC.hi = function() { console.log("hi"); };
-    HERE
-
-    get "/javascripts/application.js"
-
-    last_response.body.should == expected
     last_response.headers["Content-Type"].should == "application/javascript"
   end
 
@@ -153,28 +115,5 @@ describe "Rake::Pipeline Middleware" do
     last_response.body.should == "not found"
     last_response.status.should == 404
   end
-
-  it "recreates the pipeline when the Assetfile changes" do
-    get "/javascripts/app.js"
-    last_response.body.should == "not found"
-    last_response.status.should == 404
-
-    File.open(File.join(tmp, "Assetfile"), "w") do |file|
-      file.write(modified_assetfile_source)
-    end
-
-    expected = <<-HERE.gsub(/^ {6}/, '')
-      var jQuery = {};
-      var SC = {};
-
-      SC.hi = function() { console.log("hi"); };
-    HERE
-
-    get "/javascripts/app.js"
-
-    last_response.body.should == expected
-    last_response.headers["Content-Type"].should == "application/javascript"
-  end
-
 
 end
