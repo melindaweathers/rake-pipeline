@@ -9,4 +9,3 @@ gem "simplecov", :require => false
 gem "yard"
 gem "rdiscount"
 gem "pry"
-gem "listen"
