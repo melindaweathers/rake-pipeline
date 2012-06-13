@@ -12,7 +12,7 @@ module Rake
         @logger = Logger.new(STDOUT)
       end
 
-      def start(blocking = true)
+      def start
         project = @project
 
         build_proc = Proc.new do |modified, added, removed|
@@ -40,7 +40,7 @@ module Rake
 
         # Build it once when we start up, and then start watching for changes.
         build_proc.call(['Assetfile'], [], [])
-        @listeners.each{|l| l.start(blocking) }
+        @listeners.each{|l| l.start(false) }
       end
 
       def stop

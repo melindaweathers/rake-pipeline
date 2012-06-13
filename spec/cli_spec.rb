@@ -74,17 +74,4 @@ describe "Rake::Pipeline::CLI" do
     end
   end
 
-  describe "watcher" do
-    let(:watcher) { double "watcher" }
-
-    before do
-      require 'rake-pipeline/watcher'
-      Rake::Pipeline::Watcher.stub(:new).and_return(watcher)
-    end
-
-    it "starts a Rake::Pipeline::Watcher" do
-      watcher.should_receive :start
-      rakep "watch"
-    end
-  end
 end

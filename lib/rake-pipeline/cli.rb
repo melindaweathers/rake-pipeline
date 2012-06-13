@@ -37,15 +37,9 @@ module Rake
         require "rake-pipeline/server"
         require "rake-pipeline/watcher"
         watcher = Rake::Pipeline::Watcher.new(project)
-        watcher.start(false)
+        watcher.start
         Rake::Pipeline::Server.new.start
         watcher.stop
-      end
-
-      desc "watch", "Build the project when inputs change."
-      def watch
-        require "rake-pipeline/watcher"
-        Rake::Pipeline::Watcher.new(project).start
       end
 
     private

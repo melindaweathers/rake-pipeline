@@ -86,7 +86,7 @@ describe "Rake::Pipeline Middleware" do
       end
     end
 
-    watcher.start(false)
+    watcher.start
     sleep 0.5
   end
 
